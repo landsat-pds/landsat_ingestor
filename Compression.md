@@ -23,8 +23,7 @@ only needs to be done when a client image viewer, processor accesses the pixels.
 
 Here we try to explore some of the tradeoffs in compression.
 
-
-
+```
 $ ls -lh
 total 429M
 -rw-rw-r-- 1 warmerdam warmerdam  47M Dec 17 11:17 b1_deflate_pred2_bigblock.tif
@@ -34,7 +33,7 @@ total 429M
 -rw-rw-r-- 1 warmerdam warmerdam  37M Dec 17 11:14 b1.tif.bz2
 -rw-rw-r-- 1 warmerdam warmerdam  57M Dec 17 11:14 b1.tif.gz
 -rw-rw-r-- 1 warmerdam warmerdam 140M Dec 17 11:13 LC82301202013305LGN00_B1.TIF
-
+```
 
 
 
@@ -48,7 +47,7 @@ metadata (TIFF tags, GeoTIFF tags, etc) are exactly the same.
 
 
 Before as reported by gdalinfo:
-
+```
 $ gdalinfo LC82301202013305LGN00_B1.TIF 
 Driver: GTiff/GeoTIFF
 Files: LC82301202013305LGN00_B1.TIF
@@ -84,10 +83,10 @@ Upper Right ( -539985.000, -533085.000) (134d37'53.70"W, 83d 1'28.66"S)
 Lower Right ( -539985.000, -790515.000) (145d39'49.67"W, 81d12'20.12"S)
 Center      ( -667950.000, -661800.000) (134d44' 6.05"W, 81d21'42.03"S)
 Band 1 Block=8531x1 Type=UInt16, ColorInterp=Gray
-
+```
 
 After as reported by gdalinfo:
-
+```
 $ gdalinfo b1_deflate.tif 
 Driver: GTiff/GeoTIFF
 Files: b1_deflate.tif
@@ -124,5 +123,5 @@ Upper Right ( -539985.000, -533085.000) (134d37'53.70"W, 83d 1'28.66"S)
 Lower Right ( -539985.000, -790515.000) (145d39'49.67"W, 81d12'20.12"S)
 Center      ( -667950.000, -661800.000) (134d44' 6.05"W, 81d21'42.03"S)
 Band 1 Block=8531x1 Type=UInt16, ColorInterp=Gray
-
+```
 
