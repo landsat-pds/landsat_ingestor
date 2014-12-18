@@ -3,6 +3,24 @@
 import sys
 import os
 
+def run_command(cmd):
+    print cmd
+    result = os.system(cmd)
+    if result != 0:
+        raise Exception('command "%s" failed with code %d.' % (cmd, result))
+
+def internally_compress(filename):
+    wrk_file = filename.rsplit('.',1)[0] + '_wrk.tif'
+
+    run_command(
+        'gdal_translate %s %s -co COMPRESS=DEFLATE -co PREDICTOR=2' % (
+            filename, wrk_file))
+
+    # Check?
+
+    os.unlink(filename)
+    os.rename(wrk_file, filename)
+    
 
 def split(root_scene, filename):
     # Returns name of unpack directory will have a root named according
@@ -16,12 +34,15 @@ def split(root_scene, filename):
     # Currently assuming .bz tar file, but we can check this later if
     # USGS or other sources are packaged differently than GCS.
 
-    cmd = 'tar --directory=%s xjvf %s ' % (tgt_dir, filename)
-    print cmd
-    
-    os.system(cmd)
+    run_command('tar xjvf %s --directory=%s ' % (filename, tgt_dir))
 
     # add some confirmation expected files were extracted.
+
+    for filename in os.listdir(tgt_dir):
+        if filename.endswith('.TIF'):
+            internally_compress(os.path.join(tgt_dir, filename))
+
+    # TODO: Add generation of a thumbnail!
 
     return tgt_dir
     
