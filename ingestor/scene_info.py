@@ -4,6 +4,10 @@ import sys
 import os
 import pprint
 import datetime
+import logging
+
+# get ahead of pygaarst logging config
+logging.basicConfig(level=logging.WARNING)
 
 pygaarst_dir = os.path.dirname(__file__) + '/../pygaarst'
 print pygaarst_dir

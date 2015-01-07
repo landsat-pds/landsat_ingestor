@@ -4,6 +4,7 @@ import argparse
 import sys
 import os
 import shutil
+import pprint
 
 import puller
 import splitter
@@ -20,7 +21,8 @@ def process(source, scene_root, verbose=False, clean=False):
         
     scene_dict = {}
     
-    local_tarfile = puller.pull(source, scene_root, verbose=verbose)
+    local_tarfile = puller.pull(source, scene_root, scene_dict,
+                                verbose=verbose)
 
     local_dir = splitter.split(scene_root, local_tarfile, verbose=verbose)
 
@@ -32,6 +34,8 @@ def process(source, scene_root, verbose=False, clean=False):
     if clean:
         os.unlink(local_tarfile)
         shutil.rmtree(local_dir)
+
+    return scene_dict
     
 
 def get_parser():
@@ -51,9 +55,12 @@ def get_parser():
 
 def main(rawargs):
     args = get_parser().parse_args(rawargs)
-    process(args.source, args.scene,
-            verbose = args.verbose,
-            clean = args.clean)
+    scene_dict = process(args.source, args.scene,
+                         verbose = args.verbose,
+                         clean = args.clean)
+
+    if args.verbose:
+        pprint.pprint(scene_dict)
 
 if __name__ == '__main__':
     status = main(sys.argv[1:])

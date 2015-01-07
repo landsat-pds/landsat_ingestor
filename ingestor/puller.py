@@ -2,13 +2,14 @@
 
 import argparse
 import sys
+import pprint
 
 import puller_gcs
 
 
-def pull(source, scene_root, verbose=False):
+def pull(source, scene_root, scene_dict, verbose=False):
     if source == 'gcs':
-        return puller_gcs.pull(scene_root, verbose=verbose)
+        return puller_gcs.pull(scene_root, scene_dict, verbose=verbose)
     else:
         raise Exception('Landsat source "%s" not recognised.' % source)
 
@@ -25,9 +26,11 @@ def get_parser():
 
 def main(rawargs):
     args = get_parser().parse_args(rawargs)
-    filename = pull(args.source, args.scene, verbose=True)
+    scene_dict = {}
+    filename = pull(args.source, args.scene, scene_dict, verbose=True)
 
     print 'Filename:', filename
+    pprint.pprint(scene_dict)
 
 if __name__ == '__main__':
     status = main(sys.argv[1:])
