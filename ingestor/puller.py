@@ -6,9 +6,9 @@ import sys
 import puller_gcs
 
 
-def pull(source, scene_root):
+def pull(source, scene_root, verbose=False):
     if source == 'gcs':
-        return puller_gcs.pull(scene_root)
+        return puller_gcs.pull(scene_root, verbose=verbose)
     else:
         raise Exception('Landsat source "%s" not recognised.' % source)
 
@@ -25,7 +25,7 @@ def get_parser():
 
 def main(rawargs):
     args = get_parser().parse_args(rawargs)
-    filename = pull(args.source, args.scene)
+    filename = pull(args.source, args.scene, verbose=True)
 
     print 'Filename:', filename
 

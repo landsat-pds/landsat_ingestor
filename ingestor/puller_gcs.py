@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import os
 import argparse
 import requests
 
@@ -17,10 +18,12 @@ def build_url(scene_root):
         row,
         scene_root)
 
-def pull(scene_root):
+def pull(scene_root, verbose=False):
     filename = scene_root + '.tar.bz'
 
     url = build_url(scene_root)
+    if verbose:
+        print 'Fetching:', url
 
     rv = requests.get(url, stream=True)
     rv.raise_for_status()
@@ -29,14 +32,20 @@ def pull(scene_root):
         for d in rv.iter_content(chunk_size=1024 * 1024 * 10):
             if d:
                 f.write(d)
-                sys.stderr.write('.')
-                sys.stderr.flush()
+                if verbose:
+                    sys.stderr.write('.')
+                    sys.stderr.flush()
 
-    sys.stderr.write('\n')
+    if verbose:
+        sys.stderr.write('\n')
 
     # Confirm this is really a .bz file, not an http error or something.
     if open(filename).read(2) != 'BZ':
         raise Exception('%s does not appear to be a .bz file' % filename)
 
+    if verbose:
+        print '%s successfully downloaded (%d bytes)' % (
+            filename, os.path.getsize(filename))
+        
     return filename
 

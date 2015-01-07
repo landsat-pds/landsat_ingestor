@@ -30,7 +30,7 @@ def _get_key(path, bucket=None):
         bucket = _get_bucket()
     return bucket.get_key(path)
 
-def _push_file(src_path, s3_path):
+def _push_file(src_path, s3_path, verbose=False):
     key = _get_key(s3_path)
     if key is not None:
         raise Exception('File already at %s' % s3_path)
@@ -44,8 +44,9 @@ def _push_file(src_path, s3_path):
         key.content_type = 'text/plain'
 
     bytes_uploaded = key.set_contents_from_filename(src_path)
-    print 'Uploaded %d bytes from %s to %s.' % (
-        bytes_uploaded, src_path, s3_path)
+    if verbose:
+        print 'Uploaded %d bytes from %s to %s.' % (
+            bytes_uploaded, src_path, s3_path)
 
 def _scene_root_to_path(scene_root):
     sensor, path, row = l8_lib.parse_scene(scene_root)
@@ -57,12 +58,13 @@ def check_existance(scene_root):
     thumb_path = '%s/%s_thumb_small.jpg' % (dst_path, scene_root)
     return _get_key(thumb_path) is not None
     
-def push(scene_root, src_dir):
+def push(scene_root, src_dir, verbose=False):
     dst_path = _scene_root_to_path(scene_root)
 
     for filename in os.listdir(src_dir):
         _push_file(src_dir + '/' + filename,
-                   dst_path + '/' + filename)
+                   dst_path + '/' + filename,
+                   verbose=verbose)
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:

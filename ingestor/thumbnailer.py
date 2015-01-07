@@ -44,7 +44,7 @@ def get_band(filename, target_percent):
 
     return image
 
-def thumbnail(root_scene, scene_dir):
+def thumbnail(root_scene, scene_dir, verbose=False):
     red_file = '%s/%s_B4.TIF' % (scene_dir, root_scene)
     grn_file = '%s/%s_B2.TIF' % (scene_dir, root_scene)
     blu_file = '%s/%s_B1.TIF' % (scene_dir, root_scene)
@@ -65,7 +65,6 @@ def thumbnail(root_scene, scene_dir):
 
     for filename in os.listdir(scene_dir):
         if filename.endswith('.aux.xml'):
-            print 'Cleaning: ', filename
             os.unlink(os.path.join(scene_dir,filename))
     
 
