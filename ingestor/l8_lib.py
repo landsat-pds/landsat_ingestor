@@ -1,3 +1,5 @@
+import hashlib
+import md5
 
 def parse_scene(scene_root):
     """returns (sensor, path, row)"""

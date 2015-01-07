@@ -10,7 +10,6 @@ import logging
 logging.basicConfig(level=logging.WARNING)
 
 pygaarst_dir = os.path.dirname(__file__) + '/../pygaarst'
-print pygaarst_dir
 sys.path.append(pygaarst_dir)
 
 from pygaarst import mtlutils
@@ -27,7 +26,11 @@ CSV_FIELDS = [
     'max_lat',
     'max_lon',
     'src_md5sum',
-    'src_url']
+    'src_url',
+    'download_url']
+
+def init_list_file(filename):
+    open(filename,'w').write((','.join(CSV_FIELDS)) + '\n')
 
 def make_scene_line(scene_dict):
 

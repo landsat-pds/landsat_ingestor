@@ -18,7 +18,7 @@ def build_url(scene_root):
         row,
         scene_root)
 
-def pull(scene_root, scene_dict=None, verbose=False):
+def pull(scene_root, scene_dict, verbose=False):
     filename = scene_root + '.tar.bz'
 
     url = build_url(scene_root)
@@ -47,7 +47,7 @@ def pull(scene_root, scene_dict=None, verbose=False):
         print '%s successfully downloaded (%d bytes)' % (
             filename, os.path.getsize(filename))
 
-    if scene_dict:
+    if scene_dict is not None:
         scene_dict['src_url'] = url
         scene_dict['src_md5sum'] = l8_lib.get_file_md5sum(filename)
         

@@ -11,8 +11,9 @@ import splitter
 import thumbnailer
 import pusher
 import scene_info
+import index_maker
 
-def process(source, scene_root, verbose=False, clean=False):
+def process(source, scene_root, verbose=False, clean=False, list_file=None):
     if pusher.check_existance(scene_root):
         print 'Scene %s already exists on destination bucket.' % scene_root
 
@@ -29,11 +30,19 @@ def process(source, scene_root, verbose=False, clean=False):
     scene_info.add_mtl_info(scene_dict, scene_root, local_dir)
     
     thumbnailer.thumbnail(scene_root, local_dir, verbose=verbose)
-    pusher.push(scene_root, local_dir, verbose=verbose)
+    index_maker.make_index(scene_root, local_dir, verbose=verbose)
+    pusher.push(scene_root, local_dir, scene_dict, verbose=verbose)
 
     if clean:
         os.unlink(local_tarfile)
         shutil.rmtree(local_dir)
+
+    if list_file:
+        if not os.path.exists(list_file):
+            scene_info.init_list_file(list_file)
+
+        open(list_file,'a').write(
+            scene_info.make_scene_line(scene_dict)+'\n')
 
     return scene_dict
     
@@ -49,6 +58,8 @@ def get_parser():
                          help='clean up all intermediate files')
     aparser.add_argument('-v', '--verbose', action='store_true',
                          help='Report details on progress.')
+    aparser.add_argument('-l', '--list-file', 
+                         help='List .csv file to append processing record to.')
     aparser.add_argument('scene',
                          help='Scene name, ie. LC82301202013305LGN00')
     return aparser
@@ -57,7 +68,8 @@ def main(rawargs):
     args = get_parser().parse_args(rawargs)
     scene_dict = process(args.source, args.scene,
                          verbose = args.verbose,
-                         clean = args.clean)
+                         clean = args.clean,
+                         list_file = args.list_file)
 
     if args.verbose:
         pprint.pprint(scene_dict)

@@ -50,21 +50,26 @@ def _push_file(src_path, s3_path, verbose=False):
 
 def _scene_root_to_path(scene_root):
     sensor, path, row = l8_lib.parse_scene(scene_root)
-
     return 'L8/%s/%s/%s' % (path, row, scene_root)
+
+def scene_url(scene_root):
+    return l8_aws_config.BUCKET_URL + '/' + _scene_root_to_path(scene_root)
 
 def check_existance(scene_root):
     dst_path = _scene_root_to_path(scene_root)
     thumb_path = '%s/%s_thumb_small.jpg' % (dst_path, scene_root)
     return _get_key(thumb_path) is not None
     
-def push(scene_root, src_dir, verbose=False):
+def push(scene_root, src_dir, scene_dict, verbose=False):
     dst_path = _scene_root_to_path(scene_root)
 
     for filename in os.listdir(src_dir):
         _push_file(src_dir + '/' + filename,
                    dst_path + '/' + filename,
                    verbose=verbose)
+
+    if scene_dict is not None:
+        scene_dict['download_url'] = scene_url(scene_root) + '/index.html'
 
 def acquire_run_id():
     return 1
@@ -80,4 +85,5 @@ if __name__ == '__main__':
         print 'Usage: pusher.py <scene_root> <scene_dir_path>'
         sys.exit(1)
         
-    push(sys.argv[1], sys.argv[2])
+    scene_dict = {}
+    push(sys.argv[1], sys.argv[2], scene_dict)
