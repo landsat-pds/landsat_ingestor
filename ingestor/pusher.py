@@ -66,6 +66,15 @@ def push(scene_root, src_dir, verbose=False):
                    dst_path + '/' + filename,
                    verbose=verbose)
 
+def acquire_run_id():
+    return 1
+
+def upload_run_list(run_id, scene_list):
+    pass
+
+def get_past_list():
+    return ''
+
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print 'Usage: pusher.py <scene_root> <scene_dir_path>'

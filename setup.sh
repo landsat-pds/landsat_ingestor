@@ -11,4 +11,8 @@ if [ ! -d usgs ] ; then
   (cd usgs; sudo python setup.py install)
 fi
 
+if [ ! -d pygaarst ] ; then
+  git clone git@github.com:chryss/pygaarst
+fi
+
 

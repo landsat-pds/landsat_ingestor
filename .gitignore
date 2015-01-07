@@ -1,3 +1,5 @@
 .passwd-s3fs
 *.pyc
 frank_env.sh
+pygaarst
+usgs

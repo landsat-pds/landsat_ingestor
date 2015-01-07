@@ -9,6 +9,7 @@ import puller
 import splitter
 import thumbnailer
 import pusher
+import scene_info
 
 def process(source, scene_root, verbose=False, clean=False):
     if pusher.check_existance(scene_root):
@@ -17,9 +18,14 @@ def process(source, scene_root, verbose=False, clean=False):
     if verbose:
         print 'Processing scene: %s' % scene_root
         
-    local_tarfile = puller.pull(source, scene_root, verbose=verbose)
+    scene_dict = {}
     
+    local_tarfile = puller.pull(source, scene_root, verbose=verbose)
+
     local_dir = splitter.split(scene_root, local_tarfile, verbose=verbose)
+
+    scene_info.add_mtl_info(scene_dict, scene_root, local_dir)
+    
     thumbnailer.thumbnail(scene_root, local_dir, verbose=verbose)
     pusher.push(scene_root, local_dir, verbose=verbose)
 
