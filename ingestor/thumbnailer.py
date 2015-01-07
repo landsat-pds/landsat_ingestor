@@ -62,18 +62,19 @@ def thumbnail(root_scene, scene_dir):
                      get_band(blu_file, 3)]),
         '%s/%s_thumb_small.jpg' % (scene_dir, root_scene),
         format = 'JPEG')
+
+    for filename in os.listdir(scene_dir):
+        if filename.endswith('.aux.xml'):
+            print 'Cleaning: ', filename
+            os.unlink(os.path.join(scene_dir,filename))
     
 
 if __name__ == '__main__':
-
-    thumbnail('LC80430262013115LGN01', 
-              '/home/warmerdam/pl/landsat_ingestor/ingestor/wrk/LC80430262013115LGN01')
-    sys.exit(0)
 
     if len(sys.argv) < 3:
         print 'Usage: thumbnailer.py <root_scene> <scene_dir_path>'
         sys.exit(1)
 
-    print thumbnail(sys.argv[1], sys.argv[2])
+    thumbnail(sys.argv[1], sys.argv[2])
 
     

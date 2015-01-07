@@ -4,19 +4,10 @@ import sys
 import argparse
 import requests
 
-def parse_scene(scene_root):
-    """returns (sensor, path, row)"""
-
-    # Root looks like 'LC80010082013237LGN00'
-
-    assert scene_root[0] == 'L'
-    assert len(scene_root) == 21
-
-    return (scene_root[0:3], scene_root[3:6], scene_root[6:9])
-
+import l8_lib
 
 def build_url(scene_root):
-    sensor, path, row = parse_scene(scene_root)
+    sensor, path, row = l8_lib.parse_scene(scene_root)
 
     assert sensor == 'LC8'
 
