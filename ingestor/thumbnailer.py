@@ -46,8 +46,8 @@ def get_band(filename, target_percent):
 
 def thumbnail(root_scene, scene_dir, verbose=False):
     red_file = '%s/%s_B4.TIF' % (scene_dir, root_scene)
-    grn_file = '%s/%s_B2.TIF' % (scene_dir, root_scene)
-    blu_file = '%s/%s_B1.TIF' % (scene_dir, root_scene)
+    grn_file = '%s/%s_B3.TIF' % (scene_dir, root_scene)
+    blu_file = '%s/%s_B2.TIF' % (scene_dir, root_scene)
 
     # TODO: Georeference this jpeg
     gdal_array.SaveArray(
