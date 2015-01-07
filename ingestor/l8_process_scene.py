@@ -13,9 +13,13 @@ import pusher
 import scene_info
 import index_maker
 
-def process(source, scene_root, verbose=False, clean=False, list_file=None):
+def process(source, scene_root, verbose=False, clean=False, list_file=None,
+            overwrite=False):
+
     if pusher.check_existance(scene_root):
         print 'Scene %s already exists on destination bucket.' % scene_root
+        if not overwrite:
+            return None
 
     if verbose:
         print 'Processing scene: %s' % scene_root
@@ -31,7 +35,7 @@ def process(source, scene_root, verbose=False, clean=False, list_file=None):
     
     thumbnailer.thumbnail(scene_root, local_dir, verbose=verbose)
     index_maker.make_index(scene_root, local_dir, verbose=verbose)
-    pusher.push(scene_root, local_dir, scene_dict, verbose=verbose)
+    pusher.push(scene_root, local_dir, scene_dict, verbose=verbose, overwrite=overwrite)
 
     if clean:
         os.unlink(local_tarfile)
@@ -54,6 +58,8 @@ def get_parser():
     aparser.add_argument('-s', '--source', default='gcs',
                          choices=['gcs', 'usgs'],
                          help='Source service for tar')
+    aparser.add_argument('-o', '--overwrite', action='store_true',
+                         help='overwite an existing scene if it exists')
     aparser.add_argument('-c', '--clean', action='store_true',
                          help='clean up all intermediate files')
     aparser.add_argument('-v', '--verbose', action='store_true',
@@ -69,7 +75,8 @@ def main(rawargs):
     scene_dict = process(args.source, args.scene,
                          verbose = args.verbose,
                          clean = args.clean,
-                         list_file = args.list_file)
+                         list_file = args.list_file,
+                         overwrite = args.overwrite)
 
     if args.verbose:
         pprint.pprint(scene_dict)

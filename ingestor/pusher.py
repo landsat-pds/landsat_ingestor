@@ -30,10 +30,13 @@ def _get_key(path, bucket=None):
         bucket = _get_bucket()
     return bucket.get_key(path)
 
-def _push_file(src_path, s3_path, verbose=False):
+def _push_file(src_path, s3_path, verbose=False, overwrite=False):
     key = _get_key(s3_path)
     if key is not None:
-        raise Exception('File already at %s' % s3_path)
+        if not overwrite:
+            raise Exception('File already at %s' % s3_path)
+        if verbose:
+            print 'Overwriting existing %s.' % s3_path
 
     key = Key(_get_bucket(), s3_path)
     if s3_path.endswith('.TIF') or s3_path.endswith('.tif'):
@@ -60,13 +63,13 @@ def check_existance(scene_root):
     thumb_path = '%s/%s_thumb_small.jpg' % (dst_path, scene_root)
     return _get_key(thumb_path) is not None
     
-def push(scene_root, src_dir, scene_dict, verbose=False):
+def push(scene_root, src_dir, scene_dict, verbose=False, overwrite=False):
     dst_path = _scene_root_to_path(scene_root)
 
     for filename in os.listdir(src_dir):
         _push_file(src_dir + '/' + filename,
                    dst_path + '/' + filename,
-                   verbose=verbose)
+                   verbose=verbose, overwrite=overwrite)
 
     if scene_dict is not None:
         scene_dict['download_url'] = scene_url(scene_root) + '/index.html'
