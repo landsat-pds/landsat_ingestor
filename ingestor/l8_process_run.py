@@ -63,6 +63,7 @@ def get_parser():
     aparser.add_argument('--start-date')
     aparser.add_argument('--end-date')
     aparser.add_argument('--run-directly', action='store_true')
+    aparser.add_argument('--break-run-lock', action='store_true')
     return aparser
 
 def main(rawargs):
@@ -76,6 +77,9 @@ def main(rawargs):
         for i in scene_ids:
             print i
         sys.exit(1)
+
+    run_id = pusher.acquire_run_id('(l8_process_run.py)',
+                                   force=args.break_run_lock)
 
     run_file = 'this_run.csv'
     scene_info.init_list_file(run_file)
@@ -93,6 +97,8 @@ def main(rawargs):
                 scene_info.make_scene_line(scene_dict)+'\n')
             open(scene_list_file,'a').write(
                 scene_info.make_scene_line(scene_dict)+'\n')
+
+    pusher.upload_run_list(run_id, run_file, scene_list_file)
 
 if __name__ == '__main__':
     status = main(sys.argv[1:])

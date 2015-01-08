@@ -2,6 +2,9 @@
 
 import sys
 import os
+import json
+import socket
+import datetime
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
@@ -11,6 +14,8 @@ import l8_lib
 
 s3_connection = None
 s3_bucket = None
+
+RUN_INFO_FILE = 'run_info.json'
 
 def _get_bucket():
     global s3_connection
@@ -74,12 +79,70 @@ def push(scene_root, src_dir, scene_dict, verbose=False, overwrite=False):
     if scene_dict is not None:
         scene_dict['download_url'] = scene_url(scene_root) + '/index.html'
 
-def acquire_run_id():
-    return 1
+def acquire_run_id(comment='', force=False):
+    
+    key = _get_key(RUN_INFO_FILE)
+    if key:
+        run_info = json.loads(key.get_contents_as_string())
+    else:
+        key = Key(_get_bucket(), RUN_INFO_FILE)
+        key.content_type = 'text/plain'
+        run_info = {
+            'last_run': 0, 
+            'active_run': None,
+            }
 
-def upload_run_list(run_id, scene_list):
-    pass
+    if run_info['active_run'] is not None:
+        print 'Already an active run:', run_info['active_run']
+        if not force:
+            raise Exception('Already an active run')
 
+    run_info['active_run'] = '%s on %s started at %s %s' % (
+        os.environ.get('USER','unknown'),
+        socket.gethostname(),
+        str(datetime.datetime.utcnow()),
+        comment)
+    
+    key.set_contents_from_string(json.dumps(run_info))
+        
+    return run_info['last_run'] + 1
+
+def upload_run_list(run_id, run_filename, scene_list_filename, verbose=False):
+    run_info_key = _get_key(RUN_INFO_FILE)
+    run_info = json.loads(run_info_key.get_contents_as_string())
+
+    if run_info['last_run'] != run_id-1 or run_info['active_run'] is None:
+        raise Exception('We are not the active run! ' + str(run_info))
+        
+    if socket.gethostname() not in run_info['active_run']:
+        raise Exception('We are not the active run host! ' + str(run_info))
+
+    if verbose:
+        print 'Confirmed we are the active run: ', str(run_info)
+
+    run_info['last_run'] = run_id
+    run_info['active_run'] = None
+
+    run_s3_name = 'runs/%s.csv' % run_id
+
+    run_key = Key(_get_bucket(), run_s3_name)
+    run_key.set_contents_from_filename(run_filename)
+
+    if verbose:
+        print 'Uploaded run log %s to %s on s3.' % (run_filename, run_s3_name)
+
+    os.system('gzip -f -9 %s' % scene_list_filename)
+    key = _get_key('scene_list.gz')
+    key.set_contents_from_filename(scene_list_filename + '.gz')
+    
+    if verbose:
+        print 'Uploaded %s to scene_list.gz' % scene_list_filename
+
+    run_info_key.set_contents_from_string(json.dumps(run_info))
+
+    if verbose:
+        print 'last run incremented, active_run over.'
+        
 def get_past_list():
     key = _get_key('scene_list.gz')
     if not key:
