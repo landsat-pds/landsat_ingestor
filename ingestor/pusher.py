@@ -81,7 +81,14 @@ def upload_run_list(run_id, scene_list):
     pass
 
 def get_past_list():
-    return ''
+    key = _get_key('scene_list.gz')
+    if not key:
+        open('scene_list','w').write('\n')
+    else:
+        key.get_contents_to_filename('scene_list.gz')
+        os.system('gzip -f -d scene_list.gz')
+
+    return 'scene_list'
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
