@@ -33,11 +33,11 @@ def pull(scene_root, scene_dict, verbose=False):
             if d:
                 f.write(d)
                 if verbose:
-                    sys.stderr.write('.')
-                    sys.stderr.flush()
+                    sys.stdout.write('.')
+                    sys.stdout.flush()
 
     if verbose:
-        sys.stderr.write('\n')
+        sys.stdout.write('\n')
 
     # Confirm this is really a .bz file, not an http error or something.
     if open(filename).read(2) != 'BZ':

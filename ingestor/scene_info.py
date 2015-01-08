@@ -29,9 +29,6 @@ CSV_FIELDS = [
     'src_url',
     'download_url']
 
-def init_list_file(filename):
-    open(filename,'w').write((','.join(CSV_FIELDS)) + '\n')
-
 def make_scene_line(scene_dict):
 
     line = ''
@@ -43,6 +40,17 @@ def make_scene_line(scene_dict):
     line = line[:-1]
 
     return line
+
+def append_scene_line(filename, scene_dict):
+    if not os.path.exists(filename):
+        init_list_file(filename)
+        
+    # This may be expensive to do often, but should be plenty fast when
+    # we are just adding one new recently processed scene.
+    open(filename,'a').write(make_scene_line(scene_dict)+'\n')
+    
+def init_list_file(filename):
+    open(filename,'w').write((','.join(CSV_FIELDS)) + '\n')
 
 def split_scene_line(line):
     fields = line.strip().split(',')

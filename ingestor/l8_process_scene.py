@@ -42,11 +42,7 @@ def process(source, scene_root, verbose=False, clean=False, list_file=None,
         shutil.rmtree(local_dir)
 
     if list_file:
-        if not os.path.exists(list_file):
-            scene_info.init_list_file(list_file)
-
-        open(list_file,'a').write(
-            scene_info.make_scene_line(scene_dict)+'\n')
+        scene_info.append_scene_line(list_file, scene_dict)
 
     return scene_dict
     

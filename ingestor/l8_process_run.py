@@ -82,15 +82,17 @@ def main(rawargs):
 
     results = []
     for scene_id in scene_ids:
-        scene_dict = l8_process_scene.process(
-            args.source, scene_id, 
-            verbose = args.verbose,
-            list_file = run_file)
 
-        open(run_file,'a').write(
-            scene_info.make_scene_line(scene_dict)+'\n')
-        open(scene_list_file,'a').write(
-            scene_info.make_scene_line(scene_dict)+'\n')
+        scene_dict = l8_process_scene.process(
+            args.source, scene_id,
+            clean = True,
+            verbose = args.verbose)
+
+        if scene_dict is not None:
+            open(run_file,'a').write(
+                scene_info.make_scene_line(scene_dict)+'\n')
+            open(scene_list_file,'a').write(
+                scene_info.make_scene_line(scene_dict)+'\n')
 
 if __name__ == '__main__':
     status = main(sys.argv[1:])
