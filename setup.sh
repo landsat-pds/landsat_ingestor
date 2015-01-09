@@ -2,7 +2,7 @@
 
 set -o errexit
 
-sudo apt-get install git gdal-bin python-gdal
+sudo apt-get install git parallel gdal-bin python-gdal
 #sudo pip install requests
 #sudo pip install boto
 

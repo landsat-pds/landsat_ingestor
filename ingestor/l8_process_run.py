@@ -49,35 +49,7 @@ def remove_processed_ids(scene_ids, scene_list_file):
 
     return missing_ids
 
-    
-def get_parser():
-    aparser = argparse.ArgumentParser(
-        description='Query for new scenes and ingest them to S3.')
-
-    aparser.add_argument('-s', '--source', default='gcs',
-                         choices=['gcs', 'usgs'],
-                         help='Source service for tar')
-    aparser.add_argument('-v', '--verbose', action='store_true',
-                         help='Report details on progress.')
-    aparser.add_argument('--limit', type=int)
-    aparser.add_argument('--start-date')
-    aparser.add_argument('--end-date')
-    aparser.add_argument('--run-directly', action='store_true')
-    aparser.add_argument('--break-run-lock', action='store_true')
-    return aparser
-
-def main(rawargs):
-    args = get_parser().parse_args(rawargs)
-    scene_ids = query_for_scenes(args.start_date, args.end_date,
-                                 limit=args.limit)
-    scene_list_file = pusher.get_past_list()
-    scene_ids = remove_processed_ids(scene_ids, scene_list_file)
-
-    if not args.run_directly:
-        for i in scene_ids:
-            print i
-        sys.exit(1)
-
+def process_scene_set_internal(args, scene_ids, scene_list_file):
     run_id = pusher.acquire_run_id('(l8_process_run.py)',
                                    force=args.break_run_lock)
 
@@ -98,7 +70,67 @@ def main(rawargs):
             open(scene_list_file,'a').write(
                 scene_info.make_scene_line(scene_dict)+'\n')
 
-    pusher.upload_run_list(run_id, run_file, scene_list_file)
+    pusher.upload_run_list(run_id, run_file, scene_list_file,
+                           verbose = args.verbose)
+
+def process_scene_set_external(args, scene_ids, scene_list_file):
+    run_id = pusher.acquire_run_id('(l8_process_run.py)',
+                                   force=args.break_run_lock)
+
+    run_file = 'this_run.csv'
+    scene_info.init_list_file(run_file)
+
+    in_file = 'this_run.lst'
+    open(in_file,'w').write(('\n'.join(scene_ids)) + '\n')
+    
+    cmd = 'parallel -j 6 %s %s -l %s < %s' % (
+        'l8_process_scene.py',
+        '--verbose' if args.verbose else '',
+        run_file,
+        in_file)
+    if args.verbose:
+        print cmd
+    rc = os.system(cmd)
+    
+    new_lines = open(run_file).read().split('\n')[1:]
+    open(scene_list_file,'a').write(('\n'.join(new_lines)) + '\n')
+
+    pusher.upload_run_list(run_id, run_file, scene_list_file,
+                           verbose = args.verbose)
+
+def get_parser():
+    aparser = argparse.ArgumentParser(
+        description='Query for new scenes and ingest them to S3.')
+
+    aparser.add_argument('-s', '--source', default='gcs',
+                         choices=['gcs', 'usgs'],
+                         help='Source service for tar')
+    aparser.add_argument('-v', '--verbose', action='store_true',
+                         help='Report details on progress.')
+    aparser.add_argument('--limit', type=int)
+    aparser.add_argument('--start-date')
+    aparser.add_argument('--end-date')
+    aparser.add_argument('--run-directly', action='store_true')
+    aparser.add_argument('--parallel', action='store_true')
+    aparser.add_argument('--break-run-lock', action='store_true')
+    return aparser
+
+def main(rawargs):
+    args = get_parser().parse_args(rawargs)
+    scene_ids = query_for_scenes(args.start_date, args.end_date,
+                                 limit=args.limit)
+    scene_list_file = pusher.get_past_list()
+    scene_ids = remove_processed_ids(scene_ids, scene_list_file)
+
+    if not args.run_directly:
+        for i in scene_ids:
+            print i
+        sys.exit(1)
+
+    elif args.parallel:
+        process_scene_set_external(args, scene_ids, scene_list_file)
+    else:
+        process_scene_set_internal(args, scene_ids, scene_list_file)
 
 if __name__ == '__main__':
     status = main(sys.argv[1:])
