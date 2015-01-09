@@ -102,7 +102,7 @@ def get_parser():
     aparser = argparse.ArgumentParser(
         description='Query for new scenes and ingest them to S3.')
 
-    aparser.add_argument('-s', '--source', default='gcs',
+    aparser.add_argument('-s', '--source', default='usgs',
                          choices=['gcs', 'usgs'],
                          help='Source service for tar')
     aparser.add_argument('-v', '--verbose', action='store_true',

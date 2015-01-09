@@ -51,7 +51,7 @@ def get_parser():
     aparser = argparse.ArgumentParser(
         description='Process one Landsat scene from source to S3.')
 
-    aparser.add_argument('-s', '--source', default='gcs',
+    aparser.add_argument('-s', '--source', default='usgs',
                          choices=['gcs', 'usgs'],
                          help='Source service for tar')
     aparser.add_argument('-o', '--overwrite', action='store_true',

@@ -37,12 +37,12 @@ def split(root_scene, filename, verbose=False):
 
     os.mkdir(tgt_dir)
     
-    # Currently assuming .bz tar file, but we can check this later if
-    # USGS or other sources are packaged differently than GCS.
-
+    # Unpack tar file, GCS .tars are bz2 and require -j flag.
     run_command(
-        'tar xj%sf %s --directory=%s ' % (
-            'v' if verbose else '', filename, tgt_dir),
+        'tar x%s%sf %s --directory=%s ' % (
+          'j' if filename.endswith('.bz') else '',
+          'v' if verbose else '',
+          filename, tgt_dir),
         verbose=verbose)
 
     # add some confirmation expected files were extracted.
