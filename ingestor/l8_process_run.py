@@ -13,21 +13,23 @@ import pusher
 import scene_info
 import l8_process_scene
 
-def query_for_scenes(start_date, end_date, limit=None):
+def query_for_scenes(start_date, end_date, verbose=False, limit=None):
     full_list = []
     list_offset = 0
     these_scenes = 'start'
     chunk_size = 500
     if limit is not None and limit < chunk_size:
         chunk_size = limit
-    
-    print 'search...'
+
+    if verbose:
+        print 'search...'
     while these_scenes == 'start' or len(these_scenes) == chunk_size:
         these_scenes = api.search("LANDSAT_8", "EE",
                                   start_date=start_date, end_date=end_date,
                                   starting_number = 1+list_offset,
                                   max_results=chunk_size)
-        print '... %d scenes' % len(these_scenes)
+        if verbose:
+            print '... %d scenes' % len(these_scenes)
         full_list += these_scenes
         list_offset += len(these_scenes)
 
@@ -118,6 +120,7 @@ def get_parser():
 def main(rawargs):
     args = get_parser().parse_args(rawargs)
     scene_ids = query_for_scenes(args.start_date, args.end_date,
+                                 verbose=args.verbose,
                                  limit=args.limit)
     scene_list_file = pusher.get_past_list()
     scene_ids = remove_processed_ids(scene_ids, scene_list_file)
