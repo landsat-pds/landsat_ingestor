@@ -14,7 +14,7 @@ import pusher
 import scene_info
 import index_maker
 
-def collect_missing_entry(scene_root, verbose, list_file):
+def collect_missing_entry(scene_root, verbose, clean, list_file):
     scene_dict = {}
 
     mtl_file = scene_root + '_MTL.txt'
@@ -33,6 +33,9 @@ def collect_missing_entry(scene_root, verbose, list_file):
     if list_file:
         scene_info.append_scene_line(list_file, scene_dict)
 
+    if clean:
+        os.unlink(mtl_file)
+        
     return scene_dict
 
 def process(source, scene_root, verbose=False, clean=False, list_file=None,
@@ -41,7 +44,7 @@ def process(source, scene_root, verbose=False, clean=False, list_file=None,
     if pusher.check_existance(scene_root):
         print 'Scene %s already exists on destination bucket.' % scene_root
         if not overwrite:
-            return collect_missing_entry(scene_root, verbose, list_file)
+            return collect_missing_entry(scene_root, verbose, clean, list_file)
 
     if verbose:
         print 'Processing scene: %s' % scene_root
