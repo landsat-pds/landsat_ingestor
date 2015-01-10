@@ -5,6 +5,7 @@ import sys
 import os
 import shutil
 import pprint
+import requests
 
 import puller
 import splitter
@@ -13,13 +14,34 @@ import pusher
 import scene_info
 import index_maker
 
+def collect_missing_entry(scene_root, verbose, list_file):
+    scene_dict = {}
+
+    mtl_file = scene_root + '_MTL.txt'
+    mtl_url = pusher.scene_url(scene_root) + '/' + mtl_file
+
+    rv = requests.get(mtl_url)
+    rv.raise_for_status()
+
+    with open(mtl_file, 'wb') as f:
+        for chunk in rv.iter_content(chunk_size=1000000):
+            f.write(chunk)
+            
+    scene_info.add_mtl_info(scene_dict, scene_root, '.')
+    scene_dict['download_url'] = pusher.scene_url(scene_root) + '/index.html'
+    
+    if list_file:
+        scene_info.append_scene_line(list_file, scene_dict)
+
+    return scene_dict
+
 def process(source, scene_root, verbose=False, clean=False, list_file=None,
             overwrite=False):
 
     if pusher.check_existance(scene_root):
         print 'Scene %s already exists on destination bucket.' % scene_root
         if not overwrite:
-            return None
+            return collect_missing_entry(scene_root, verbose, list_file)
 
     if verbose:
         print 'Processing scene: %s' % scene_root
