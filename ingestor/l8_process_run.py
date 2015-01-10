@@ -94,7 +94,7 @@ def process_scene_set_external(args, scene_ids, scene_list_file):
         print cmd
     rc = os.system(cmd)
     
-    new_lines = open(run_file).read().split('\n')[1:]
+    new_lines = open(run_file).read().strip().split('\n')[1:]
     open(scene_list_file,'a').write(('\n'.join(new_lines)) + '\n')
 
     pusher.upload_run_list(run_id, run_file, scene_list_file,
