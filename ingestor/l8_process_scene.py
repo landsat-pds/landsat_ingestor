@@ -77,7 +77,7 @@ def get_parser():
         description='Process one Landsat scene from source to S3.')
 
     aparser.add_argument('-s', '--source', default='usgs',
-                         choices=['gcs', 'usgs'],
+                         choices=['gcs', 'usgs', 'auto'],
                          help='Source service for tar')
     aparser.add_argument('-o', '--overwrite', action='store_true',
                          help='overwite an existing scene if it exists')

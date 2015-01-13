@@ -13,6 +13,12 @@ def pull(source, scene_root, scene_dict, verbose=False):
         return puller_gcs.pull(scene_root, scene_dict, verbose=verbose)
     elif source == 'usgs':
         return puller_usgs.pull(scene_root, scene_dict, verbose=verbose)
+    elif source == 'auto':
+        try:
+            return puller_usgs.pull(scene_root, scene_dict, verbose=verbose)
+        except:
+            print 'Exception from usgs processing, fallback to gcs.'
+            return puller_gcs.pull(scene_root, scene_dict, verbose=verbose)
     else:
         raise Exception('Landsat source "%s" not recognised.' % source)
 
@@ -21,7 +27,7 @@ def get_parser():
         description='Pull Landsat scene from source')
 
     aparser.add_argument('-s', '--source', default='usgs',
-                         choices=['gcs', 'usgs'],
+                         choices=['gcs', 'usgs', 'auto'],
                          help='Source service for tar')
     aparser.add_argument('scene',
                          help='Scene name, ie. LC82301202013305LGN00')
