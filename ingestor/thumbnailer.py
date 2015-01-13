@@ -49,6 +49,12 @@ def thumbnail(root_scene, scene_dir, verbose=False):
     grn_file = '%s/%s_B3.TIF' % (scene_dir, root_scene)
     blu_file = '%s/%s_B2.TIF' % (scene_dir, root_scene)
 
+    if not os.path.exists(red_file) or not os.path.exists(grn_file) \
+            or not os.path.exists(blu_file):
+        print 'Missing one or more of %s, %s and %s, skip thumbnailing.' % (
+            red_file, grn_file, blu_file)
+        return
+
     # TODO: Georeference this jpeg
     gdal_array.SaveArray(
         numpy.array([get_band(red_file, 15),
