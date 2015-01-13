@@ -14,6 +14,14 @@ import scene_info
 import l8_process_scene
 
 def query_for_scenes(start_date, end_date, verbose=False, limit=None):
+    if 'USGS_PASSWORD' in os.environ:
+        if verbose:
+            print 'logging in...'
+        api_key = api.login(os.environ['USGS_USERID'],
+                            os.environ['USGS_PASSWORD'])
+        if verbose:
+            print '  api_key = %s' % api_key
+
     full_list = []
     list_offset = 0
     these_scenes = 'start'
