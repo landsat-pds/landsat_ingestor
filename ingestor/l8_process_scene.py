@@ -8,6 +8,7 @@ import pprint
 import requests
 
 import puller
+import puller_s3queue
 import splitter
 import thumbnailer
 import pusher
@@ -98,6 +99,9 @@ def main(rawargs):
                          clean = args.clean,
                          list_file = args.list_file,
                          overwrite = args.overwrite)
+
+    if args.source == 's3queue':
+        puller_s3queue.clean_queued_tarfile(args.scene, verbose=args.verbose)
 
     if args.verbose:
         pprint.pprint(scene_dict)

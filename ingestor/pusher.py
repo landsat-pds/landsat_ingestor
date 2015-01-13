@@ -174,6 +174,10 @@ def get_past_list():
 
     return 'scene_list'
 
+def list(prefix='', limit=None):
+    bucket = _get_bucket()
+    return [x.name for x in bucket.list(prefix=prefix)]
+    
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print 'Usage: pusher.py <scene_root> <scene_dir_path>'

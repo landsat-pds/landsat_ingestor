@@ -6,10 +6,19 @@ import argparse
 import requests
 
 import l8_lib
+import pusher
+
+def clean_queued_tarfile(scene_root, verbose=False):
+    if verbose:
+        print 'pusher.unlink_file(%s)' % s3_path(scene_root)
+    pusher.unlink_file(s3_path(scene_root))
+
+def s3_path(scene_root):
+    return 'tarq/%s.tar.gz' % scene_root
 
 def build_url(scene_root):
-    return 'https://s3-us-west-2.amazonaws.com/landsat-pds/tarq/%s.tar.gz' % (
-        scene_root)
+    return 'https://s3-us-west-2.amazonaws.com/landsat-pds/%s' % (
+        s3_path(scene_root))
 
 def pull(scene_root, scene_dict, verbose=False):
     filename = scene_root + '.tar.gz'
