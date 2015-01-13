@@ -51,6 +51,13 @@ def remove_processed_ids(scene_ids, scene_list_file):
 
     return missing_ids
 
+def remove_queued_ids(scene_ids):
+    missing_ids = []
+    for scene_id in scene_ids:
+        if not pusher.check_file_existance('tarq/%s.tar.gz' % scene_id):
+            missing_ids.append(scene_id)
+    return missing_ids
+            
 def process_scene_set_internal(args, scene_ids, scene_list_file):
     run_id = pusher.acquire_run_id('(l8_process_run.py)',
                                    force=args.break_run_lock)
@@ -100,6 +107,20 @@ def process_scene_set_external(args, scene_ids, scene_list_file):
     pusher.upload_run_list(run_id, run_file, scene_list_file,
                            verbose = args.verbose)
 
+def copy_scene_set_external(args, scene_ids):
+    in_file = 'this_run.lst'
+    open(in_file,'w').write(('\n'.join(scene_ids)) + '\n')
+    
+    cmd = 'parallel -j 4 %s %s < %s' % (
+        'l8_queue_tar.py',
+        '--verbose' if args.verbose else '',
+        in_file)
+    if args.verbose:
+        print cmd
+    rc = os.system(cmd)
+    if args.verbose:
+        print 'status=%d, %d scenes requested.' % (rc, len(scene_ids))
+    
 def get_parser():
     aparser = argparse.ArgumentParser(
         description='Query for new scenes and ingest them to S3.')
@@ -113,6 +134,7 @@ def get_parser():
     aparser.add_argument('--start-date')
     aparser.add_argument('--end-date')
     aparser.add_argument('--run-directly', action='store_true')
+    aparser.add_argument('--queue', action='store_true')
     aparser.add_argument('--parallel', action='store_true')
     aparser.add_argument('--break-run-lock', action='store_true')
     return aparser
@@ -125,11 +147,18 @@ def main(rawargs):
     scene_list_file = pusher.get_past_list()
     scene_ids = remove_processed_ids(scene_ids, scene_list_file)
 
-    if not args.run_directly:
+    if args.queue:
+        scene_ids = remove_queued_ids(scene_ids)
+
+    print '%d scenes identified for processing.' % len(scene_ids)
+
+    if not args.run_directly and not args.queue:
         for i in scene_ids:
             print i
         sys.exit(1)
 
+    if args.queue:
+        copy_scene_set_external(args, scene_ids)
     elif args.parallel:
         process_scene_set_external(args, scene_ids, scene_list_file)
     else:

@@ -35,7 +35,7 @@ def _get_key(path, bucket=None):
         bucket = _get_bucket()
     return bucket.get_key(path)
 
-def _push_file(src_path, s3_path, verbose=False, overwrite=False):
+def push_file(src_path, s3_path, verbose=False, overwrite=False):
     key = _get_key(s3_path)
     if key is not None:
         if not overwrite:
@@ -56,6 +56,27 @@ def _push_file(src_path, s3_path, verbose=False, overwrite=False):
         print 'Uploaded %d bytes from %s to %s.' % (
             bytes_uploaded, src_path, s3_path)
 
+def check_file_existance(s3_path):
+    key = _get_key(s3_path)
+    return key is not None
+
+def get_file(s3_path, local_file=None):
+    key = _get_key(s3_path)
+    if key is None:
+        raise Exception('%s not found' % s3_path)
+
+    if local_file is None:
+        local_file = os.path.filename(s3_path)
+
+    key.get_contents_to_filename(local_file)
+    return local_file
+
+def unlink_file(s3_path):
+    key = _get_key(s3_path)
+    if not key:
+        raise Exception('%s not found.' % s3_path)
+    key.delete()
+
 def _scene_root_to_path(scene_root):
     sensor, path, row = l8_lib.parse_scene(scene_root)
     return 'L8/%s/%s/%s' % (path, row, scene_root)
@@ -72,9 +93,9 @@ def push(scene_root, src_dir, scene_dict, verbose=False, overwrite=False):
     dst_path = _scene_root_to_path(scene_root)
 
     for filename in os.listdir(src_dir):
-        _push_file(src_dir + '/' + filename,
-                   dst_path + '/' + filename,
-                   verbose=verbose, overwrite=overwrite)
+        push_file(src_dir + '/' + filename,
+                  dst_path + '/' + filename,
+                  verbose=verbose, overwrite=overwrite)
 
     if scene_dict is not None:
         scene_dict['download_url'] = scene_url(scene_root) + '/index.html'

@@ -6,6 +6,7 @@ import pprint
 
 import puller_gcs
 import puller_usgs
+import puller_s3queue
 
 
 def pull(source, scene_root, scene_dict, verbose=False):
@@ -13,6 +14,8 @@ def pull(source, scene_root, scene_dict, verbose=False):
         return puller_gcs.pull(scene_root, scene_dict, verbose=verbose)
     elif source == 'usgs':
         return puller_usgs.pull(scene_root, scene_dict, verbose=verbose)
+    elif source == 's3queue':
+        return puller_s3queue.pull(scene_root, scene_dict, verbose=verbose)
     elif source == 'auto':
         try:
             return puller_usgs.pull(scene_root, scene_dict, verbose=verbose)
@@ -27,7 +30,7 @@ def get_parser():
         description='Pull Landsat scene from source')
 
     aparser.add_argument('-s', '--source', default='usgs',
-                         choices=['gcs', 'usgs', 'auto'],
+                         choices=['gcs', 'usgs', 's3queue', 'auto'],
                          help='Source service for tar')
     aparser.add_argument('scene',
                          help='Scene name, ie. LC82301202013305LGN00')
