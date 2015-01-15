@@ -159,6 +159,7 @@ def main(rawargs):
         scene_ids = remove_queued_ids(scene_ids)
 
     print '%d scenes identified for processing.' % len(scene_ids)
+    sys.stdout.flush()
 
     if not args.run_directly and not args.queue:
         for i in scene_ids:
