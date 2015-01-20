@@ -4,10 +4,43 @@ import sys
 import os
 import argparse
 import requests
+import time
+import random
 
 from usgs import api
 
 import l8_lib
+
+def backoff_factor(base):
+    """Add a small amount of random jitter to avoid cyclic server stampedes"""
+
+    return base + round(random.random() % 0.5, 2)
+
+def is_success(rv):
+    if rv.status_code >= 400:
+        return False
+    return True
+
+def is_retryable(rv):
+    return rv.status_code >= 503
+
+def retry_get(url, retries=4, **kwargs):
+    """retry get multiple times, with exponential backoff between"""
+
+    sleep_time = 5
+
+    for _ in xrange(retries + 1):
+        rv = requests.get(url, **kwargs)
+        if rv is None or rv.status_code != 503:
+            return rv
+
+        print 'GET %s reports code %s, retry in %s' % (
+            url, rv.status_code, sleep_time)
+
+        time.sleep(sleep_time)
+        sleep_time *= backoff_factor(2)
+
+    return rv
 
 def get_download_url(scene_root, verbose):
     if 'USGS_PASSWORD' in os.environ:
@@ -29,7 +62,7 @@ def pull(scene_root, scene_dict, verbose=False):
     if verbose:
         print 'Fetching:', url
 
-    rv = requests.get(url, stream=True)
+    rv = retry_get(url, stream=True)
     rv.raise_for_status()
 
     with open(filename, 'wb') as f:
