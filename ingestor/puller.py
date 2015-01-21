@@ -19,8 +19,9 @@ def pull(source, scene_root, scene_dict, verbose=False):
     elif source == 'auto':
         try:
             return puller_usgs.pull(scene_root, scene_dict, verbose=verbose)
-        except:
-            print 'Exception from usgs processing, fallback to gcs.'
+        except Exception as ex:
+            print 'Exception %s from usgs processing, fallback to gcs.' % (
+                str(ex))
             return puller_gcs.pull(scene_root, scene_dict, verbose=verbose)
     else:
         raise Exception('Landsat source "%s" not recognised.' % source)

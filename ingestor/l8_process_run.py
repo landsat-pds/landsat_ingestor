@@ -119,9 +119,10 @@ def copy_scene_set_external(args, scene_ids):
     in_file = 'this_run.lst'
     open(in_file,'w').write(('\n'.join(scene_ids)) + '\n')
     
-    cmd = 'parallel -j 6 %s %s < %s' % (
+    cmd = 'parallel -j 6 %s %s --source %s < %s' % (
         'l8_queue_tar.py',
         '--verbose' if args.verbose else '',
+        args.source,
         in_file)
     if args.verbose:
         print cmd
