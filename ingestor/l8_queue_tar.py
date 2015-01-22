@@ -12,7 +12,6 @@ import splitter
 import thumbnailer
 import pusher
 import scene_info
-import index_maker
 
 def process(source, scene_root, verbose=False):
 

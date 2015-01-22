@@ -28,7 +28,7 @@ def make_index(scene_root, scene_dir, verbose=False):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print 'Usage: index_maker.py <scene_root> <scene_dir_path>'
+        print 'Usage: scene_index_maker.py <scene_root> <scene_dir_path>'
         sys.exit(1)
 
     make_index(sys.argv[1], sys.argv[2])

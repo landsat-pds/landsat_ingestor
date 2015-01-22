@@ -13,7 +13,7 @@ import splitter
 import thumbnailer
 import pusher
 import scene_info
-import index_maker
+import scene_index_maker
 
 def collect_missing_entry(scene_root, verbose, clean, list_file):
     scene_dict = {}
@@ -60,7 +60,7 @@ def process(source, scene_root, verbose=False, clean=False, list_file=None,
     scene_info.add_mtl_info(scene_dict, scene_root, local_dir)
     
     thumbnailer.thumbnail(scene_root, local_dir, verbose=verbose)
-    index_maker.make_index(scene_root, local_dir, verbose=verbose)
+    scene_index_maker.make_index(scene_root, local_dir, verbose=verbose)
     pusher.push(scene_root, local_dir, scene_dict, verbose=verbose, overwrite=overwrite)
 
     if clean:
