@@ -41,9 +41,10 @@ def pull(scene_root, scene_dict, verbose=False):
     if verbose:
         sys.stdout.write('\n')
 
-    # Confirm this is really a .gz file, not an http error or something.
-    if open(filename).read(2) != '\037\213':
-        raise Exception('%s does not appear to be a .gz file' % filename)
+    # Confirm this is really a .gz or .bz file, not an http error or something.
+    header = open(filename).read(2)
+    if header != '\037\213' and header != 'BZ':
+        raise Exception('%s does not appear to be a .gz or .bz file' % filename)
 
     if verbose:
         print '%s successfully downloaded (%d bytes)' % (

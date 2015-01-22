@@ -37,10 +37,15 @@ def split(root_scene, filename, verbose=False):
 
     os.mkdir(tgt_dir)
     
-    # Unpack tar file, GCS .tars are bz2 and require -j flag.
+    if open(filename).read(2) == 'BZ':
+        compress_flag = 'j'
+    else:
+        compress_flag = ''
+
+    # Unpack tar file.
     run_command(
         'tar x%s%sf %s --directory=%s ' % (
-          'j' if filename.endswith('.bz') else '',
+          compress_flag,
           'v' if verbose else '',
           filename, tgt_dir),
         verbose=verbose)
