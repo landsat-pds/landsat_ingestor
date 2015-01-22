@@ -50,10 +50,6 @@ def make_index(s3_path='L8', verbose=False):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
-        print 'Usage: tree_index_maker.py'
-        sys.exit(1)
-
     make_index()
 
     
