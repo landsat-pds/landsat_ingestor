@@ -84,9 +84,5 @@ def pull(scene_root, scene_dict, verbose=False):
         print '%s successfully downloaded (%d bytes)' % (
             filename, os.path.getsize(filename))
 
-    if scene_dict is not None:
-        scene_dict['src_url'] = url
-        scene_dict['src_md5sum'] = l8_lib.get_file_md5sum(filename)
-        
     return filename
 

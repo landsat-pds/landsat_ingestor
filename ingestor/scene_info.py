@@ -25,8 +25,6 @@ CSV_FIELDS = [
     'min_lon',
     'max_lat',
     'max_lon',
-    'src_md5sum',
-    'src_url',
     'download_url']
 
 def make_scene_line(scene_dict):
