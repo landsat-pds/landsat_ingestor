@@ -66,7 +66,7 @@ def get_file(s3_path, local_file=None):
         raise Exception('%s not found' % s3_path)
 
     if local_file is None:
-        local_file = os.path.filename(s3_path)
+        local_file = os.path.basename(s3_path)
 
     key.get_contents_to_filename(local_file)
     return local_file
