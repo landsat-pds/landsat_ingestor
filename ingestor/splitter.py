@@ -16,10 +16,22 @@ def internally_compress(filename, verbose=False):
     wrk_file = filename.rsplit('.',1)[0] + '_wrk.tif'
 
     run_command(
-        'gdal_translate %s %s %s -co COMPRESS=DEFLATE -co PREDICTOR=2' % (
+        'gdal_translate %s %s %s -co COMPRESS=DEFLATE -co PREDICTOR=2 -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 ' % (
             filename,
             wrk_file, 
             '' if verbose else '-q'),
+        verbose=verbose)
+
+    if 'BQA' in filename:
+        resample_alg = 'nearest'
+    else:
+        resample_alg = 'average'
+
+    run_command(
+        'gdaladdo %s -ro -r %s --config COMPRESS_OVERVIEW DEFLATE --config PREDICTOR_OVERVIEW 2 %s 4 8 16 32 64 128' % (
+            '' if verbose else '-q',
+            resample_alg,
+            filename),
         verbose=verbose)
 
     # Check?
