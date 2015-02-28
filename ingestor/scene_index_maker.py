@@ -22,7 +22,7 @@ def make_index(scene_root, scene_dir, verbose=False):
         else:
             nice_size = ' (%.1fKB)' % (filesize / 1024.0)
 
-        files += '<li><a href="%s">%s</a></li>%s\n' % (
+        files += '<li><a href="%s">%s</a>%s</li>\n' % (
             filename, filename, nice_size)
         
     src_dir = os.path.dirname(__file__)
