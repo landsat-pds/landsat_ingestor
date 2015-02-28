@@ -4,7 +4,6 @@ import sys
 import os
 import numpy
 
-
 def make_index(scene_root, scene_dir, verbose=False):
 
     title = scene_root
@@ -16,7 +15,15 @@ def make_index(scene_root, scene_dir, verbose=False):
         if filename == 'index.html':
             continue
 
-        files += '<li><a href="%s">%s</a></li>\n' % (filename, filename)
+        filesize = os.path.getsize(os.path.join(scene_dir,filename))
+
+        if filesize > 100000:
+            nice_size = ' (%.1fMB)' % (filesize / 1048576.0)
+        else:
+            nice_size = ' (%.1fKB)' % (filesize / 1024.0)
+
+        files += '<li><a href="%s">%s</a></li>%s\n' % (
+            filename, filename, nice_size)
         
     src_dir = os.path.dirname(__file__)
     doc = open(src_dir + '/index_template.html').read()
