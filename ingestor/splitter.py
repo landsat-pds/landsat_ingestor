@@ -22,23 +22,23 @@ def internally_compress(filename, verbose=False):
             '' if verbose else '-q'),
         verbose=verbose)
 
+    # Check?
+    os.unlink(filename)
+    os.rename(wrk_file, filename)
+    
+def build_pyramid(filename, verbose=False):
     if 'BQA' in filename:
         resample_alg = 'nearest'
     else:
         resample_alg = 'average'
 
     run_command(
-        'gdaladdo %s -ro -r %s --config COMPRESS_OVERVIEW DEFLATE --config PREDICTOR_OVERVIEW 2 %s 4 8 16 32 64 128' % (
+        'gdaladdo %s -ro -r %s --config COMPRESS_OVERVIEW DEFLATE --config PREDICTOR_OVERVIEW 2 --config GDAL_TIFF_OVR_BLOCKSIZE 512 %s 3 9 27 81' % (
             '' if verbose else '-q',
             resample_alg,
             filename),
         verbose=verbose)
 
-    # Check?
-
-    os.unlink(filename)
-    os.rename(wrk_file, filename)
-    
 
 def split(root_scene, filename, verbose=False):
     # Returns name of unpack directory will have a root named according
@@ -68,6 +68,8 @@ def split(root_scene, filename, verbose=False):
         if filename.endswith('.TIF'):
             internally_compress(os.path.join(tgt_dir, filename),
                                 verbose = verbose)
+            build_pyramid(os.path.join(tgt_dir, filename),
+                          verbose = verbose)
 
     return tgt_dir
     
