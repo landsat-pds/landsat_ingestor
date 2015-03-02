@@ -3,6 +3,7 @@
 import sys
 import os
 import argparse
+import shutil
 
 import pusher
 import splitter
@@ -107,10 +108,13 @@ def main(rawargs):
         
     upload = reprocess(scene_root, args.local_path, verbose=args.verbose)
 
-    if upload:
+    if upload and args.s3_path:
         scene_dict = {}
         pusher.push(scene_root, args.local_path, scene_dict,
-                    verbose=verbose, overwrite=True)
+                    verbose=args.verbose, overwrite=True)
+
+    if args.s3_path:
+        shutil.rmtree(args.local_path)
 
 
 if __name__ == '__main__':
