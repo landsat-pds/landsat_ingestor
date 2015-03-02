@@ -5,6 +5,7 @@ import os
 import json
 import socket
 import datetime
+import logging
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
@@ -22,6 +23,9 @@ def _get_bucket():
     global s3_bucket
 
     if s3_connection is None:
+        if l8_aws_config.ACCESS_ID is None or l8_aws_config.ACCESS_KEY is None:
+            logging.warning('S3 Access credentials missing, doing public access.')
+
         s3_connection = S3Connection(l8_aws_config.ACCESS_ID,
                                      l8_aws_config.ACCESS_KEY)
 
@@ -100,6 +104,23 @@ def push(scene_root, src_dir, scene_dict, verbose=False, overwrite=False):
     if scene_dict is not None:
         scene_dict['download_url'] = scene_url(scene_root) + '/index.html'
 
+def pull_scene(scene_root, dst_dir=None, verbose=False, overwrite=False):
+    src_path = _scene_root_to_path(scene_root)
+
+    if dst_dir is None:
+        dst_dir = scene_root
+
+    if not os.path.exists(dst_dir):
+        os.makedirs(dst_dir)
+        
+    for src_filename in list(src_path):
+        dst_filename = os.path.join(dst_dir,os.path.basename(src_filename))
+        if verbose:
+            print 'Fetching %ss to %s' % (src_filename, dst_filename)
+            
+        key = _get_key(src_filename)
+        key.get_contents_to_filename(dst_filename)
+
 def acquire_run_id(comment='', force=False):
     
     key = _get_key(RUN_INFO_FILE)
@@ -176,7 +197,8 @@ def get_past_list():
 
 def list(prefix='', limit=None):
     bucket = _get_bucket()
-    return [x.name for x in bucket.list(prefix=prefix)]
+    for x in bucket.list(prefix=prefix):
+        yield x.name
     
 if __name__ == '__main__':
     if len(sys.argv) != 3:
