@@ -18,6 +18,8 @@ s3_bucket = None
 
 RUN_INFO_FILE = 'run_info.json'
 
+BUCKET_URL = 'http://s3-us-west-2.amazonaws.com/landsat-pds'
+
 def _get_bucket():
     global s3_connection
     global s3_bucket
@@ -80,6 +82,14 @@ def unlink_file(s3_path):
     if not key:
         raise Exception('%s not found.' % s3_path)
     key.delete()
+
+def move_file(src_s3_path, dst_s3_path, overwrite=False):
+    logging.debug('pusher.move_file(%s,%s)', src_s3_path, dst_s3_path)
+    
+    _get_bucket().copy_key(new_key_name = dst_s3_path,
+                           src_bucket_name = l8_aws_config.BUCKET_NAME,
+                           src_key_name = src_s3_path)
+    unlink_file(src_s3_path)
 
 def _scene_root_to_path(scene_root):
     sensor, path, row = l8_lib.parse_scene(scene_root)
