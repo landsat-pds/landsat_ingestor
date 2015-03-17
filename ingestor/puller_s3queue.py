@@ -17,8 +17,7 @@ def s3_path(scene_root):
     return 'tarq/%s.tar.gz' % scene_root
 
 def build_url(scene_root):
-    return 'https://s3-us-west-2.amazonaws.com/landsat-pds/%s' % (
-        s3_path(scene_root))
+    return '%s/%s' % (pusher.BUCKET_URL, s3_path(scene_root))
 
 def pull(scene_root, scene_dict, verbose=False):
     filename = scene_root + '.tar.gz'
@@ -44,6 +43,14 @@ def pull(scene_root, scene_dict, verbose=False):
     # Confirm this is really a .gz or .bz file, not an http error or something.
     header = open(filename).read(2)
     if header != '\037\213' and header != 'BZ':
+        dst_s3_path = 'tarq_corrupt/%s.tar.gz' % scene_root
+        #pusher.move_file(s3_path(scene_root),
+        #                 dst_s3_path,
+        #                 overwrite=True)
+        #print 'Migrating corrupt input to %s/%s' % (
+        #    pusher.BUCKET_URL,
+        #    dst_s3_path)
+        
         raise Exception('%s does not appear to be a .gz or .bz file' % filename)
 
     if verbose:
