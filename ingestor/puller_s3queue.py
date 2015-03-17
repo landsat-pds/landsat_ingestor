@@ -4,6 +4,8 @@ import sys
 import os
 import argparse
 import requests
+import boto
+import datetime
 
 import l8_lib
 import pusher
@@ -43,15 +45,21 @@ def pull(scene_root, scene_dict, verbose=False):
     # Confirm this is really a .gz or .bz file, not an http error or something.
     header = open(filename).read(2)
     if header != '\037\213' and header != 'BZ':
-        dst_s3_path = 'tarq_corrupt/%s.tar.gz' % scene_root
-        #pusher.move_file(s3_path(scene_root),
-        #                 dst_s3_path,
-        #                 overwrite=True)
-        #print 'Migrating corrupt input to %s/%s' % (
-        #    pusher.BUCKET_URL,
-        #    dst_s3_path)
+        src_s3_path = s3_path(scene_root)
+        last_modified = boto.utils.parse_ts(
+            pusher._get_key(src_s3_path).last_modified)
+
+        oldness = datetime.datetime.now() - last_modified
+        if oldness.seconds > 3600:
+            dst_s3_path = 'tarq_corrupt/%s.tar.gz' % scene_root
+            pusher.move_file(src_s3_path, dst_s3_path, overwrite=True)
+            print 'Migrating corrupt input to %s/%s' % (
+                pusher.BUCKET_URL,
+                dst_s3_path)
+        else:
+            print 'Leave %s in tarq, it may still be uploading.'
         
-        raise Exception('%s does not appear to be a .gz or .bz file' % filename)
+        raise Exception('%s does not appear to be a .gz or .bz file'%filename)
 
     if verbose:
         print '%s successfully downloaded (%d bytes)' % (
