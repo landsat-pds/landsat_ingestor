@@ -11,4 +11,4 @@ Static HTML L8 traversal: https://s3-us-west-2.amazonaws.com/landsat-pds/L8/inde
 
 Full Scene List: https://s3-us-west-2.amazonaws.com/landsat-pds/scene_list.gz
 
-
+Preliminary Wiki docs: [Accessing-Landsat-on-AWS](https://github.com/landsat-pds/landsat_ingestor/wiki/Accessing-Landsat-on-AWS)
