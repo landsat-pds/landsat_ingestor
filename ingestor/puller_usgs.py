@@ -43,15 +43,6 @@ def retry_get(url, retries=4, **kwargs):
     return rv
 
 def get_download_url(scene_root, verbose):
-    if 'USGS_PASSWORD' in os.environ:
-        if verbose:
-            print 'logging in...'
-        api_key = api.login(os.environ['USGS_USERID'],
-                            os.environ['USGS_PASSWORD'])
-        if verbose:
-            print '  api_key = %s' % api_key
-
-
     urls = api.download('LANDSAT_8', 'EE', [scene_root], 'STANDARD')
     return urls[0]
 
