@@ -173,6 +173,9 @@ def main(rawargs):
         process_scene_set_external(args, scene_ids, scene_list_file)
     else:
         process_scene_set_internal(args, scene_ids, scene_list_file)
+    
+    api.logout()
+
 
 if __name__ == '__main__':
     status = main(sys.argv[1:])
