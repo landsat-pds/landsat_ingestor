@@ -32,10 +32,6 @@ def retry_get(url, retries=4, **kwargs):
     for _ in xrange(retries + 1):
         rv = requests.get(url, **kwargs)
         if rv is None or rv.status_code != 503:
-            
-            # TODO: Check that the tarball is not corrupt
-            
-            
             return rv
 
         print 'GET %s reports code %s, retry in %s' % (
