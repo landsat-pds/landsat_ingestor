@@ -55,7 +55,10 @@ def process(source, scene_root, verbose=False, clean=False, list_file=None,
     local_tarfile = puller.pull(source, scene_root, scene_dict,
                                 verbose=verbose)
 
-    local_dir = splitter.split(scene_root, local_tarfile, verbose=verbose)
+    try:
+        local_dir = splitter.split(scene_root, local_tarfile, verbose=verbose)
+    except:
+        puller_s3queue.move_to_corrupt_queue(scene_root)
 
     scene_info.add_mtl_info(scene_dict, scene_root, local_dir)
     
