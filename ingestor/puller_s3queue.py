@@ -21,6 +21,20 @@ def s3_path(scene_root):
 def build_url(scene_root):
     return '%s/%s' % (pusher.BUCKET_URL, s3_path(scene_root))
 
+
+def move_to_corrupt_queue(scene_root):
+    """
+    :param scene_root:
+        Landsat scene id
+    """
+    
+    src_s3_path = s3_path(scene_root)
+    dst_s3_path = 'tarq_corrupt/%s.tar.gz'
+    pusher.move_file(src_s3_path, dst_s3_path, overwrite=True)
+    print 'Migrating corrupt input to %s/%s' % (
+        pusher.BUCKET_URL,
+        dst_s3_path)
+
 def pull(scene_root, scene_dict, verbose=False):
     filename = scene_root + '.tar.gz'
 
@@ -51,11 +65,7 @@ def pull(scene_root, scene_dict, verbose=False):
 
         oldness = datetime.datetime.now() - last_modified
         if oldness.seconds > 3600:
-            dst_s3_path = 'tarq_corrupt/%s.tar.gz' % scene_root
-            pusher.move_file(src_s3_path, dst_s3_path, overwrite=True)
-            print 'Migrating corrupt input to %s/%s' % (
-                pusher.BUCKET_URL,
-                dst_s3_path)
+            move_to_corrupt_queue(scene_root)
         else:
             print 'Leave %s in tarq, it may still be uploading.'
         
