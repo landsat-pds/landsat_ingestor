@@ -29,7 +29,7 @@ def move_to_corrupt_queue(scene_root):
     """
     
     src_s3_path = s3_path(scene_root)
-    dst_s3_path = 'tarq_corrupt/%s.tar.gz'
+    dst_s3_path = 'tarq_corrupt/%s.tar.gz' % scene_root
     pusher.move_file(src_s3_path, dst_s3_path, overwrite=True)
     print 'Migrating corrupt input to %s/%s' % (
         pusher.BUCKET_URL,
