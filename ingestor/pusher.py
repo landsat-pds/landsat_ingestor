@@ -79,9 +79,8 @@ def get_file(s3_path, local_file=None):
 
 def unlink_file(s3_path):
     key = _get_key(s3_path)
-    if not key:
-        raise Exception('%s not found.' % s3_path)
-    key.delete()
+    if key:
+        key.delete()
 
 def move_file(src_s3_path, dst_s3_path, overwrite=False):
     logging.debug('pusher.move_file(%s,%s)', src_s3_path, dst_s3_path)
