@@ -42,7 +42,7 @@ def pull(scene_root, scene_dict, verbose=False):
     if verbose:
         print 'Fetching:', url
 
-    rv = requests.get(url, stream=True)
+    rv = requests.get(url, stream=True, timeout=120)
     rv.raise_for_status()
 
     with open(filename, 'wb') as f:
