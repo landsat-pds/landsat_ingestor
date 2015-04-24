@@ -6,13 +6,7 @@ import pprint
 import datetime
 import logging
 
-# get ahead of pygaarst logging config
-logging.basicConfig(level=logging.WARNING)
-
-pygaarst_dir = os.path.dirname(__file__) + '/../pygaarst'
-sys.path.append(pygaarst_dir)
-
-from pygaarst import mtlutils
+import mtlutils
 
 CSV_FIELDS = [
     'entityId',
