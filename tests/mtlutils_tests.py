@@ -15,10 +15,10 @@ class Tests(unittest.TestCase):
             datetime.time(14, 8, 18, 854493),
             mtl_dict['L1_METADATA_FILE']['PRODUCT_METADATA']['SCENE_CENTER_TIME'])
 
-    def xtest_quoted_times(self):
+    def test_quoted_times(self):
         mtl_dict = mtlutils.parsemeta('data/LC82200762015113LGN00_MTL.txt')
         self.assertEqual(
-            datetime.time(13, 9, 52, 809376),
+            datetime.time(13, 9, 52, 809375),
             mtl_dict['L1_METADATA_FILE']['PRODUCT_METADATA']['SCENE_CENTER_TIME'])
 
 if __name__ == '__main__':

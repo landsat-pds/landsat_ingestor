@@ -182,6 +182,14 @@ def _transstat(status, grouppath, dictpath, line):
     elif status == 2:
         currentdict = dictpath[-1]
         newkey, newval = _getmetadataitem(line)
+        
+        # USGS has started quoting the scene center time.  If this
+        # happens strip quotes before post processing.
+        if newkey == 'SCENE_CENTER_TIME' and newval.startswith('"') \
+                and newval.endswith('"'):
+            logging.warning('Strip quotes off SCENE_CENTER_TIME.')
+            newval = newval[1:-1]
+
         currentdict[newkey] = _postprocess(newval)
     elif status == 3:
         oldgroup = _getendgroupname(line)
@@ -206,6 +214,7 @@ def _postprocess(valuestr):
     """
     Takes value as str, returns str, int, float, date, datetime, or time
     """
+    # USGS has started quoting time sometimes.  Grr, strip quotes in this case
     intpattern = re.compile(r'^\-?\d+$')
     floatpattern = re.compile(r'^\-?\d+\.\d+(E[+-]?\d\d+)?$')
     datedtpattern = '%Y-%m-%d'
