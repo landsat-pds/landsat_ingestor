@@ -9,6 +9,31 @@ Created by Chris Waigl on 2014-04-20.
 
 [2014-04-20] Refactoring original landsatutils.py, as MTL file format is
 also used by Hyperion and ALI.
+
+----------------------------------------------------------------------------
+
+Extracted from pygaarst by Frank Warmerdam, original license is:
+
+The MIT License (MIT)
+
+Copyright (c) 2013 Chris Waigl
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import division
@@ -17,7 +42,8 @@ import os.path, glob
 import datetime
 import re
 import logging
-logging.basicConfig(level=logging.DEBUG)
+import StringIO
+
 LOGGER = logging.getLogger('pygaarst.mtlutils')
 
 # ==================================================================
@@ -237,13 +263,17 @@ def parsemeta(metadataloc):
                 % metadataloc)
         elif len(metalist) > 0:
             metadatafn = metalist[0]
+            filehandle = open(metadatafn, 'rU')
             if len(metalist) > 1:
                 logging.warning(
                     "More than one file in directory match metadata "
                     + "file pattern. Using %s." % metadatafn)
     elif os.path.isfile(metadataloc):
         metadatafn = metadataloc
+        filehandle = open(metadatafn, 'rU')
         logging.info("Using file %s." % metadatafn)
+    elif 'L1_METADATA_FILE' in metadataloc:
+        filehandle = StringIO.StringIO(metadataloc)
     else:
         raise MTLParseError(
             "File location %s is unavailable " % metadataloc
@@ -254,15 +284,16 @@ def parsemeta(metadataloc):
     metadata = {}
     grouppath = []
     dictpath = [metadata]
-    with open(metadatafn, 'rU') as filehandle:
-        for line in filehandle:
-            if status == 4:
-                # we reached the end in the previous iteration,
-                # but are still reading lines
-                logging.warning(
-                    "Metadata file %s appears to " % metadatafn
-                    + "have extra lines after the end of the metadata. "
-                    + "This is probably, but not necessarily, harmless.")
-            status = _checkstatus(status, line)
-            grouppath, dictpath = _transstat(status, grouppath, dictpath, line)
+
+    for line in filehandle:
+        if status == 4:
+            # we reached the end in the previous iteration,
+            # but are still reading lines
+            logging.warning(
+                "Metadata file %s appears to " % metadatafn
+                + "have extra lines after the end of the metadata. "
+                + "This is probably, but not necessarily, harmless.")
+        status = _checkstatus(status, line)
+        grouppath, dictpath = _transstat(status, grouppath, dictpath, line)
+
     return metadata
