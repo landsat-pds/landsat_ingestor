@@ -6,21 +6,52 @@ import os
 import shutil
 import pprint
 import sets
+import time
 
 from usgs import api
 
 import pusher
 import scene_info
 import l8_process_scene
+from puller_usgs import backoff_factor
+
+
+def retry_login(retries=4, verbose=False):
+    """
+    Retry USGS login multiple times, with exponential backoff between
+    """
+    if verbose:
+        print 'logging in...'
+    
+    sleep_time = 5
+
+    for _ in xrange(retries + 1):
+        
+        try:
+            api_key = api.login(os.environ['USGS_USERID'], os.environ['USGS_PASSWORD'])
+            if verbose:
+                print '  api_key = %s' % api_key
+            return api_key
+        
+        except USGSError:
+            pass
+        
+        print 'USGS login failed, retry in %s' % sleep_time
+            
+        time.sleep(sleep_time)
+        sleep_time *= backoff_factor(2)
+    
+    return None
+
 
 def query_for_scenes(start_date, end_date, verbose=False, limit=None):
+    
     if 'USGS_PASSWORD' in os.environ:
-        if verbose:
-            print 'logging in...'
-        api_key = api.login(os.environ['USGS_USERID'],
-                            os.environ['USGS_PASSWORD'])
-        if verbose:
-            print '  api_key = %s' % api_key
+        api_key = retry_login(verbose=verbose)
+    
+    if not api_key:
+        print "Failed to authenticate with USGS servers"
+        sys.exit(1)
 
     full_list = []
     list_offset = 0
