@@ -9,6 +9,7 @@ import sets
 import time
 
 from usgs import api
+from usgs import USGSError
 
 import pusher
 import scene_info
