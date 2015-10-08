@@ -132,7 +132,7 @@ def process_scene_set_external(args, scene_ids, scene_list_file):
     in_file = 'this_run.lst'
     open(in_file,'w').write(('\n'.join(scene_ids)) + '\n')
     
-    cmd = 'parallel -j 6 %s %s -l %s < %s' % (
+    cmd = 'parallel --gnu -j 6 %s %s -l %s < %s' % (
         'l8_process_scene.py',
         '--verbose' if args.verbose else '',
         run_file,
@@ -151,7 +151,7 @@ def copy_scene_set_external(args, scene_ids):
     in_file = 'this_run.lst'
     open(in_file,'w').write(('\n'.join(scene_ids)) + '\n')
     
-    cmd = 'parallel --delay 10 -j 2 %s %s --source %s < %s' % (
+    cmd = 'parallel --gnu --delay 10 -j 2 %s %s --source %s < %s' % (
         'l8_queue_tar.py',
         '--verbose' if args.verbose else '',
         args.source,
