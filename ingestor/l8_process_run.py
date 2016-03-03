@@ -7,6 +7,7 @@ import shutil
 import pprint
 import sets
 import time
+import logging
 
 from usgs import api
 from usgs import USGSError
@@ -45,6 +46,30 @@ def retry_login(retries=4, verbose=False):
     return None
 
 
+def retry_search(start_date, end_date, starting_number, max_results, retries=4, verbose=False):
+    """
+    Retry USGS search multiple times, with exponential backoff between.
+    Required due to rate-limits imposed by USGS.
+    """
+    if verbose:
+        logging.info("searching ....")
+
+    sleep_time = 5
+    for _ in xrange(retries + 1):
+        try:
+            scenes = api.search("LANDSAT_8", "EE",
+                                      start_date=start_date, end_date=end_date,
+                                      starting_number=starting_number,
+                                      max_results=max_results)
+            return scenes
+        except USGSError:
+            logging.info("USGS search failed. Retry in %s" % sleep_time)
+            time.sleep(sleep_time)
+            sleep_time *= backoff_factor(2)
+
+    return None
+
+
 def query_for_scenes(start_date, end_date, verbose=False, limit=None):
     
     if 'USGS_PASSWORD' in os.environ:
@@ -64,10 +89,7 @@ def query_for_scenes(start_date, end_date, verbose=False, limit=None):
     if verbose:
         print 'search...'
     while these_scenes == 'start' or len(these_scenes) == chunk_size:
-        these_scenes = api.search("LANDSAT_8", "EE",
-                                  start_date=start_date, end_date=end_date,
-                                  starting_number = 1+list_offset,
-                                  max_results=chunk_size)
+        these_scenes = retry_search(start_date, end_date, 1+list_offset, chunk_size)
         if verbose:
             print '... %d scenes' % len(these_scenes)
         full_list += these_scenes
