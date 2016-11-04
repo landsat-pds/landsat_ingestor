@@ -105,7 +105,12 @@ def check_existance(scene_root):
 def push(scene_root, src_dir, scene_dict, verbose=False, overwrite=False):
     dst_path = _scene_root_to_path(scene_root)
 
-    for filename in os.listdir(src_dir):
+    files = os.listdir(src_dir)
+    idx = files.index('index.html')
+    files.pop(idx)
+    files.append('index.html')
+
+    for filename in files:
         push_file(src_dir + '/' + filename,
                   dst_path + '/' + filename,
                   verbose=verbose, overwrite=overwrite)
