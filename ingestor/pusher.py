@@ -12,6 +12,7 @@ from boto.s3.key import Key
 
 import l8_aws_config
 import l8_lib
+from l8_lib import is_entity_id
 
 s3_connection = None
 s3_bucket = None
@@ -90,9 +91,17 @@ def move_file(src_s3_path, dst_s3_path, overwrite=False):
                            src_key_name = src_s3_path)
     unlink_file(src_s3_path)
 
+
 def _scene_root_to_path(scene_root):
     sensor, path, row = l8_lib.parse_scene(scene_root)
-    return 'L8/%s/%s/%s' % (path, row, scene_root)
+
+    if is_entity_id(scene_root):
+        path = 'L8/%s/%s/%s' % (path, row, scene_root)
+    else:
+        path = 'c1/L8/%s/%s/%s' % (path, row, scene_root)
+
+    return path
+
 
 def scene_url(scene_root):
     return l8_aws_config.BUCKET_URL + '/' + _scene_root_to_path(scene_root)
@@ -208,6 +217,15 @@ def get_past_list():
         os.system('gzip -f -d scene_list.gz')
 
     return 'scene_list'
+
+
+def get_past_collection_list():
+    key = _get_key('c1/L8/scene_list.gz')
+    key.get_contents_to_filename('scene_list.gz')
+    os.system('gzip -f -d scene_list.gz')
+
+    return 'scene_list'
+
 
 def list(prefix='', limit=None):
     bucket = _get_bucket()
