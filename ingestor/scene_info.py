@@ -7,6 +7,8 @@ import datetime
 import logging
 
 import mtlutils
+from l8_lib import is_entity_id
+
 
 CSV_FIELDS = [
     'entityId',
@@ -39,8 +41,9 @@ def append_scene_line(filename, scene_dict):
         
     # This may be expensive to do often, but should be plenty fast when
     # we are just adding one new recently processed scene.
-    open(filename,'a').write(make_scene_line(scene_dict)+'\n')
-    
+    with open(filename, 'a') as f:
+        f.write(make_scene_line(scene_dict)+'\n')
+
 def init_list_file(filename):
     open(filename,'w').write((','.join(CSV_FIELDS)) + '\n')
 
@@ -60,14 +63,18 @@ def add_mtl_info(scene_dict, scene_root, scene_dir):
 
     # Strip useless level of indirection.
     mtl_dict = mtl_dict['L1_METADATA_FILE']
-    
-    scene_dict['entityId'] = scene_root
+
+    if is_entity_id(scene_root):
+        scene_dict['entityId'] = scene_root
+    else:
+        scene_dict['productId'] = scene_root
+        scene_dict['entityId'] = mtl_dict['METADATA_FILE_INFO']['LANDSAT_SCENE_ID']
 
     acq_datetime = datetime.datetime.combine(
         mtl_dict['PRODUCT_METADATA']['DATE_ACQUIRED'],
         mtl_dict['PRODUCT_METADATA']['SCENE_CENTER_TIME'])
     scene_dict['acquisitionDate'] = str(acq_datetime)
-        
+
     scene_dict['cloudCover'] = mtl_dict['IMAGE_ATTRIBUTES']['CLOUD_COVER']
     scene_dict['processingLevel'] = mtl_dict['PRODUCT_METADATA']['DATA_TYPE']
     scene_dict['path'] = mtl_dict['PRODUCT_METADATA']['WRS_PATH']
