@@ -23,10 +23,27 @@ CSV_FIELDS = [
     'max_lon',
     'download_url']
 
-def make_scene_line(scene_dict):
+CSV_FIELDS_FOR_COLLECTION = [
+    'productId',
+    'entityId',
+    'acquisitionDate',
+    'cloudCover',
+    'processingLevel',
+    'path',
+    'row',
+    'min_lat',
+    'min_lon',
+    'max_lat',
+    'max_lon',
+    'download_url']
+
+
+def make_scene_line(scene_dict, collection=True):
+
+    fields = CSV_FIELDS_FOR_COLLECTION if collection else CSV_FIELDS
 
     line = ''
-    for fieldname in CSV_FIELDS:
+    for fieldname in fields:
         value = str(scene_dict.get(fieldname,''))
         line += value + ','
 
@@ -35,17 +52,22 @@ def make_scene_line(scene_dict):
 
     return line
 
+
 def append_scene_line(filename, scene_dict):
     if not os.path.exists(filename):
-        init_list_file(filename)
-        
+        collection = scene_dict.has_key('productId')
+        init_list_file(filename, collection=collection)
+
     # This may be expensive to do often, but should be plenty fast when
     # we are just adding one new recently processed scene.
     with open(filename, 'a') as f:
         f.write(make_scene_line(scene_dict)+'\n')
 
-def init_list_file(filename):
-    open(filename,'w').write((','.join(CSV_FIELDS)) + '\n')
+
+def init_list_file(filename, collection=True):
+    fields = CSV_FIELDS_FOR_COLLECTION if collection else CSV_FIELDS
+    with open(filename, 'w') as f:
+        f.write((','.join(fields)) + '\n')
 
 def split_scene_line(line):
     fields = line.strip().split(',')
@@ -104,6 +126,5 @@ if __name__ == '__main__':
 
     scene_dict = {}
     add_mtl_info(scene_dict, sys.argv[1], sys.argv[2])
-
     pprint.pprint(scene_dict)
-    print make_scene_line(scene_dict)
+
