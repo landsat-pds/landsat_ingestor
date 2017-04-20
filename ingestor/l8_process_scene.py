@@ -15,6 +15,7 @@ import pusher
 import scene_info
 import scene_index_maker
 
+
 def collect_missing_entry(scene_root, verbose, clean, list_file):
     scene_dict = {}
 
@@ -27,17 +28,18 @@ def collect_missing_entry(scene_root, verbose, clean, list_file):
     with open(mtl_file, 'wb') as f:
         for chunk in rv.iter_content(chunk_size=1000000):
             f.write(chunk)
-            
+
     scene_info.add_mtl_info(scene_dict, scene_root, '.')
     scene_dict['download_url'] = pusher.scene_url(scene_root) + '/index.html'
-    
+
     if list_file:
         scene_info.append_scene_line(list_file, scene_dict)
 
     if clean:
         os.unlink(mtl_file)
-        
+
     return scene_dict
+
 
 def process(source, scene_root, verbose=False, clean=False, list_file=None,
             overwrite=False):
@@ -49,9 +51,9 @@ def process(source, scene_root, verbose=False, clean=False, list_file=None,
 
     if verbose:
         print 'Processing scene: %s' % scene_root
-        
+
     scene_dict = {}
-    
+
     local_tarfile = puller.pull(source, scene_root, scene_dict,
                                 verbose=verbose)
 
@@ -63,7 +65,7 @@ def process(source, scene_root, verbose=False, clean=False, list_file=None,
             return
 
     scene_info.add_mtl_info(scene_dict, scene_root, local_dir)
-    
+
     thumbnailer.thumbnail(scene_root, local_dir, verbose=verbose)
     scene_index_maker.make_index(scene_root, local_dir, verbose=verbose)
     pusher.push(scene_root, local_dir, scene_dict, verbose=verbose, overwrite=overwrite)
