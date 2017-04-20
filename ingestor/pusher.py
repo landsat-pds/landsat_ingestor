@@ -106,11 +106,13 @@ def _scene_root_to_path(scene_root):
 def scene_url(scene_root):
     return l8_aws_config.BUCKET_URL + '/' + _scene_root_to_path(scene_root)
 
+
 def check_existance(scene_root):
     dst_path = _scene_root_to_path(scene_root)
     thumb_path = '%s/%s_thumb_small.jpg' % (dst_path, scene_root)
     return _get_key(thumb_path) is not None
-    
+
+
 def push(scene_root, src_dir, scene_dict, verbose=False, overwrite=False):
     dst_path = _scene_root_to_path(scene_root)
 
@@ -172,7 +174,8 @@ def acquire_run_id(comment='', force=False):
         
     return run_info['last_run'] + 1
 
-def upload_run_list(run_id, run_filename, scene_list_filename, verbose=False):
+
+def upload_run_list(run_id, run_filename, scene_list_filename, collection=True, verbose=False):
     run_info_key = _get_key(RUN_INFO_FILE)
     run_info = json.loads(run_info_key.get_contents_as_string())
 
@@ -197,9 +200,11 @@ def upload_run_list(run_id, run_filename, scene_list_filename, verbose=False):
         print 'Uploaded run log %s to %s on s3.' % (run_filename, run_s3_name)
 
     os.system('gzip -f -9 %s' % scene_list_filename)
-    key = _get_key('scene_list.gz')
+
+    keypath = 'c1/L8/scene_list.gz' if collection else 'scene_list.gz'
+    key = _get_key(keypath)
     key.set_contents_from_filename(scene_list_filename + '.gz')
-    
+
     if verbose:
         print 'Uploaded %s to scene_list.gz' % scene_list_filename
 
@@ -207,7 +212,8 @@ def upload_run_list(run_id, run_filename, scene_list_filename, verbose=False):
 
     if verbose:
         print 'last run incremented, active_run over.'
-        
+
+
 def get_past_list():
     key = _get_key('scene_list.gz')
     if not key:
