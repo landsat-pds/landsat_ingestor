@@ -54,14 +54,15 @@ def make_scene_line(scene_dict, collection=True):
 
 
 def append_scene_line(filename, scene_dict):
+    collection = scene_dict.has_key('productId')
+
     if not os.path.exists(filename):
-        collection = scene_dict.has_key('productId')
         init_list_file(filename, collection=collection)
 
     # This may be expensive to do often, but should be plenty fast when
     # we are just adding one new recently processed scene.
     with open(filename, 'a') as f:
-        f.write(make_scene_line(scene_dict)+'\n')
+        f.write(make_scene_line(scene_dict, collection=collection)+'\n')
 
 
 def init_list_file(filename, collection=True):
