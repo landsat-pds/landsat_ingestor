@@ -95,6 +95,8 @@ def get_parser():
                          help='Report details on progress.')
     aparser.add_argument('-l', '--list-file', 
                          help='List .csv file to append processing record to.')
+    aparser.add_argument('--no-delete-queue', action='store_true',
+                         help='Do not remove the scene from the s3 queue')
     aparser.add_argument('scene',
                          help='Scene name, ie. LC82301202013305LGN00')
     return aparser
@@ -107,7 +109,7 @@ def main(rawargs):
                          list_file = args.list_file,
                          overwrite = args.overwrite)
 
-    if args.source == 's3queue':
+    if args.source == 's3queue' and not args.no_delete_queue:
         puller_s3queue.clean_queued_tarfile(args.scene, verbose=args.verbose)
 
     if args.verbose:
