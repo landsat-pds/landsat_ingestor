@@ -58,7 +58,7 @@ def push_file(src_path, s3_path, verbose=False, overwrite=False):
     if s3_path.endswith('.txt'):
         key.content_type = 'text/plain'
 
-    bytes_uploaded = key.set_contents_from_filename(src_path)
+    bytes_uploaded = key.set_contents_from_filename(src_path, policy='public-read')
     if verbose:
         print 'Uploaded %d bytes from %s to %s.' % (
             bytes_uploaded, src_path, s3_path)
