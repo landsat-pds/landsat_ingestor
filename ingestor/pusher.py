@@ -194,7 +194,7 @@ def upload_run_list(run_id, run_filename, scene_list_filename, collection=True, 
     run_s3_name = 'runs/%s.csv' % run_id
 
     run_key = Key(_get_bucket(), run_s3_name)
-    run_key.set_contents_from_filename(run_filename)
+    run_key.set_contents_from_filename(run_filename, policy='public-read')
 
     if verbose:
         print 'Uploaded run log %s to %s on s3.' % (run_filename, run_s3_name)
@@ -203,7 +203,7 @@ def upload_run_list(run_id, run_filename, scene_list_filename, collection=True, 
 
     keypath = 'c1/L8/scene_list.gz' if collection else 'scene_list.gz'
     key = _get_key(keypath)
-    key.set_contents_from_filename(scene_list_filename + '.gz')
+    key.set_contents_from_filename(scene_list_filename + '.gz', policy='public-read')
 
     if verbose:
         print 'Uploaded %s to scene_list.gz' % scene_list_filename
