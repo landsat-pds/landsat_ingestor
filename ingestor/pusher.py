@@ -88,7 +88,8 @@ def move_file(src_s3_path, dst_s3_path, overwrite=False):
     
     _get_bucket().copy_key(new_key_name = dst_s3_path,
                            src_bucket_name = l8_aws_config.BUCKET_NAME,
-                           src_key_name = src_s3_path)
+                           src_key_name = src_s3_path,
+                           preserve_acl=True)
     unlink_file(src_s3_path)
 
 
