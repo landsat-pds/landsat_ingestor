@@ -61,7 +61,8 @@ def process(source, scene_root, verbose=False, clean=False, list_file=None,
         local_dir = splitter.split(scene_root, local_tarfile, verbose=verbose)
     except:
         if source == 's3queue':
-            puller_s3queue.move_to_corrupt_queue(scene_root)
+            # Remove problematic scenes from the queue directory
+            puller_s3queue.clean_queued_tarfile(scene_root)
             return
 
     scene_info.add_mtl_info(scene_dict, scene_root, local_dir)
